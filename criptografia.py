@@ -15,7 +15,7 @@ def decifra(chave_privada,msgc):
 #############################Parte que cifra a mensagem########################################
 #Nesta parte vc acessa a chave publica do seu amiguinho para cifrar a mensagem, onde depois que o seu aminguinho receber a mensagem
 #ele possa descriptografar com a chhave privada dele...
-arqnomepub ='E:\Arquivos\Documento\Fatec\criptografia\Pub.txt'
+arqnomepub ='.\criptografia\Pub.txt'
 
 #Recebe a mensagem
 msg = raw_input('Mensagem a ser cifrada: ')
