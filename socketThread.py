@@ -2,20 +2,58 @@
 #Servidor TCP
 import socket
 from threading import Thread
+import rsa
 
-#SERVER = raw_input()
-#SERVER = '172.16.4.133'
+guestPubKey = ''
+arqnomepub = '.\Pub.txt'
+arqnomepri = '.\Pri.txt'
+## LEITURA DE CHAVE PUBLICA
+arq = open(arqnomepub,'r')
+##carrego a chave
+myPubKey = ''
+for linha in arq:
+   myPubKey = myPubKey + linha
+
+arq.close()
+
 SERVER = ''
+
+## LEITURA DE CHAVE PRIVADA
+arq = open(arqnomepri,'r')
+##carrego a chave
+myPriKey = ''
+for linha in arq:
+   myPriKey = myPriKey + linha
+arq.close()
+
+
+def cifra(chave,mensagem):
+    pub = rsa.PublicKey.load_pkcs1(chave, format='PEM')
+
+    msgc = rsa.encrypt(mensagem, pub)
+
+    return msgc
+
+def decifra(chave_privada,msgc):
+    chave_privada = rsa.PrivateKey.load_pkcs1(chave_privada, format='PEM')
+    msg = rsa.decrypt(msgc, chave_privada)
+    return msg    
+
+
 def conexao(con,cli):
     while True:
         msg = con.recv(1024)
         if not msg: break
-
+        #Recebendo a chave publica para decifrar com a chave privada
+        if (pubKey == ''):
+            pubKey = msg
         #print('Usuario : ', SERVER[0])
         print('Usuario : ')
-        print (msg)
+        print (decifra(myPriKey,msg))
     print ('Finalizando conexao do cliente', cli)
     con.close() 
+#############################Parte que cifra a mensagem########################################
+
 
 
 # Endereco IP do Servidor
@@ -33,14 +71,19 @@ verifica_cliente = False
 enviar_mensagem = False
 resp = ''
 
+
 def abre_servidor():
     print ('Verificando Servidor')
     print ('Aguardando pela conexao de um usuario')
     con, cliente = tcp.accept()
     SERVER = cliente
     print ('Concetado por ', cliente)
+
+    verifica_cliente = True
     t = Thread(target=conexao, args=(con,cliente,))
     t.start()
+    resp = 1
+    abre_cliente()
 
 
 def abre_cliente():
@@ -56,13 +99,15 @@ def abre_cliente():
         tcp2.connect(destino)
 
 def envia_msg():
-    #verifica_cliente = False
     print ('Para sair use CTRL+X\n')
-    print ('Eu digo:')
+
+    print ('Enviando chave Privada:')
     
-    msg = raw_input()
+    #msg = raw_input()
+    msg = myPubKey
     while msg <> '\x18':
-        tcp2.send (msg.encode())
+
+        tcp2.send (cifra(myPubKey,msg).encode())
         print ('Eu digo:')
         msg = raw_input()
     tcp.close()

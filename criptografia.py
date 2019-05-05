@@ -15,7 +15,7 @@ def decifra(chave_privada,msgc):
 #############################Parte que cifra a mensagem########################################
 #Nesta parte vc acessa a chave publica do seu amiguinho para cifrar a mensagem, onde depois que o seu aminguinho receber a mensagem
 #ele possa descriptografar com a chhave privada dele...
-arqnomepub ='.\criptografia\Pub.txt'
+arqnomepub ='.\Pub.txt'
 
 #Recebe a mensagem
 msg = raw_input('Mensagem a ser cifrada: ')
@@ -40,7 +40,7 @@ arq.close()
 
 #############################Parte de descriptografia##########################################
 #aq seria a 'leitura da sua chave privada para descriptografar, mas nao seria leitura de um arquivo...'
-arqnomepri = 'E:\Arquivos\Documento\Fatec\criptografia\Pri.txt'#raw_input('Endereco da chave privada (c:\chaves\myPri.txt): ')
+arqnomepri = '.\Pri.txt'#raw_input('Endereco da chave privada (c:\chaves\myPri.txt): ')
 
 arqnomemsg = 'resposta.txt'#raw_input('Endereco e nome da mensagem a ser decifrada (c:\msg.txt): ')
 
@@ -58,4 +58,4 @@ for linha in arq:
    msgc = msgc + linha
 arq.close()
 
-print decifra(txt,msgc)
+print (decifra(txt,msgc))
