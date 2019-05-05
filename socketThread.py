@@ -1,3 +1,5 @@
+#LUCAS DOMINGOS LEÃO GOMES E KEVIN MIKEY
+
 #py -2 .\socketThread.py
 #Servidor TCP
 import socket
