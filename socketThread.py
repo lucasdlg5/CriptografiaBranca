@@ -3,6 +3,7 @@
 import socket
 from threading import Thread
 import rsa
+import time
 
 guestPubKey = ''
 arqnomepub = '.\Pub.txt'
@@ -40,16 +41,20 @@ def decifra(chave_privada,msgc):
     return msg    
 
 
-def conexao(con,cli):
+def conexao(con,cli,guestPubKey):
     while True:
         msg = con.recv(1024)
         if not msg: break
         #Recebendo a chave publica para decifrar com a chave privada
-        if (pubKey == ''):
-            pubKey = msg
+        if (guestPubKey == ''):
+            print('Guardando a chave publica do usuario')
+            guestPubKey = msg
+            pass
         #print('Usuario : ', SERVER[0])
+        print('Chave publica do usuario: ', guestPubKey)
         print('Usuario : ')
-        print (decifra(myPriKey,msg))
+        print (msg)
+        #print (decifra(guestPubKey,msg))
     print ('Finalizando conexao do cliente', cli)
     con.close() 
 #############################Parte que cifra a mensagem########################################
@@ -66,48 +71,52 @@ orig = (SERVER, PORT)
 
 tcp.bind(orig)
 tcp.listen(1)
-verifica_servidor = True
+verifica_servidor = False
 verifica_cliente = False
 enviar_mensagem = False
 resp = ''
 
 
 def abre_servidor():
+    verifica_servidor = False
     print ('Verificando Servidor')
     print ('Aguardando pela conexao de um usuario')
     con, cliente = tcp.accept()
-    SERVER = cliente
     print ('Concetado por ', cliente)
 
     verifica_cliente = True
-    t = Thread(target=conexao, args=(con,cliente,))
+    t = Thread(target=conexao, args=(con,cliente,guestPubKey))
     t.start()
-    resp = 1
-    abre_cliente()
+    if (verifica_cliente and resp == '1'):
+        verifica_cliente = False
+        time.sleep(2)
+        abre_cliente(cliente[0])
 
-
-def abre_cliente():
+def abre_cliente(SERVER):
     print('Abrindo Cliente')
-    if (resp == 1):
-        print ('\n\nConectando ao IP : ', SERVER[0])
-        destino = (SERVER[0], PORT)
-        tcp2.connect(destino)
-    else:
-        print('Digite o IP de conexao: \n')
-        SERVER = raw_input()
-        destino = (SERVER, PORT)
-        tcp2.connect(destino)
+    print ('Conectando ao IP : ', SERVER)
+    destino = (SERVER, PORT)
+    tcp2.connect(destino)
+    if (verifica_servidor and resp == '2'):
+        time.sleep(1)
+        abre_servidor()
+    envia_msg()
+
 
 def envia_msg():
     print ('Para sair use CTRL+X\n')
 
-    print ('Enviando chave Privada:')
     
-    #msg = raw_input()
-    msg = myPubKey
+    #msg = myPubKey
+    msg = 'PubKey: CE ACREDITA??'
+
+    print ('Enviando chave Privada:', msg)
+
     while msg <> '\x18':
 
-        tcp2.send (cifra(myPubKey,msg).encode())
+        #tcp2.send (cifra(myPriKey,msg).encode())
+        tcp2.send (msg)
+
         print ('Eu digo:')
         msg = raw_input()
     tcp.close()
@@ -125,15 +134,18 @@ while True:
             verifica_cliente = True
 
     if verifica_cliente:
-        abre_cliente()
+        verifica_servidor = True
         verifica_cliente = False
         enviar_mensagem = True
+        print('Digite o IP de conexao: \n')
+        abre_cliente(raw_input())
 
     elif verifica_servidor:
-        abre_servidor()
         verifica_servidor = False
+        abre_servidor()
 
     elif enviar_mensagem:
+        print('Entrou true para enviar msg')
         envia_msg()
 
     
