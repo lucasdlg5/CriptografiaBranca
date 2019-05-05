@@ -51,10 +51,10 @@ def conexao(con,cli,guestPubKey):
             guestPubKey = msg
             pass
         #print('Chave publica do usuario: ', guestPubKey)
-        print('Chave publica do usuario: ', myPubKey)
+        print('Chave publica do usuario: ', myPriKey)
         print('Usuario : ')
         print (msg)
-        print (decifra(myPubKey,msg))
+        print (decifra(myPriKey,msg))
     print ('Finalizando conexao do cliente', cli)
     con.close() 
 #############################Parte que cifra a mensagem########################################
@@ -108,14 +108,15 @@ def envia_msg():
 
     
     #msg = myPubKey
-    msg = 'PubKey: CE ACREDITA??'
+    msg = 'coxinha'
 
-    print ('Enviando chave Privada:', msg)
+    print ('Enviando chave Publica:', msg)
 
     while msg <> '\x18':
 
         #tcp2.send (cifra(myPriKey,msg).encode())
-        tcp2.send (cifra(myPriKey,msg).encode())
+        msg = cifra(myPubKey,msg)
+        tcp2.send (msg)
         #tcp2.send (msg)
 
         print ('Eu digo:')
